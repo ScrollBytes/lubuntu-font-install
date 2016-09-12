@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 currentdate=$(date +"%m-%d-%y")
 currenttime=$(date +"%H-%M-%S")
 binfoldername="$currentdate-$currenttime"
