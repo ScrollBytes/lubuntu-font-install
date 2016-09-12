@@ -14,4 +14,4 @@ Then ...
 3. Fonts will be installed (moved to Lubuntu fonts directory)!
 
 
-Replace "/path/to/script/" with the actual path on your computer. You can get the path by opening your file manager, right click on "install-fonts.sh" and click "Copy path(s)".
+Replace "/path/to/script/" with the actual path on your computer. You can get the path by opening your file manager, right-click on "install-fonts.sh" and click "Copy path(s)".
