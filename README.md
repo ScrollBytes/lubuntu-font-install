@@ -9,7 +9,7 @@ First ...
 
 Then ...
 
-1. Copy your zip folders with TTF or OTF fonts into same directory.
+1. Copy your zip folders with TTF or OTF fonts into same directory as "install-fonts.sh"
 2. Open terminal and type "/path/to/script/install-fonts.sh" and hit Enter key to run script.
 3. Fonts will be installed (moved to Lubuntu fonts directory)!
 
