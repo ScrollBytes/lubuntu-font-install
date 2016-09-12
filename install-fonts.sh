@@ -1,8 +1,6 @@
 #!/bin/bash
 
 
-## unzip "/home/username/Projects/LUBUNTU-FONT-INSTALLER/biorhyme.zip" -d "/home/username/Projects/LUBUNTU-FONT-INSTALLER/"
-
 
 currentdate=$(date +"%m-%d-%y")
 currenttime=$(date +"%H-%M-%S")
