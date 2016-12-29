@@ -16,4 +16,4 @@ Shell Script to quickly install fonts on Lubuntu.
 
 Replace "/path/to/script/" with the actual path on your computer. You can get the path by opening your file manager, right-click on "install-fonts.sh" and click "Copy path(s)".
 
-Tested on Lubuntu 14.04
+Tested on Lubuntu 16.04
