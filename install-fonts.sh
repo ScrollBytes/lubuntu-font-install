@@ -1,149 +1,29 @@
 #!/bin/bash
 
-currentdate=$(date +"%m-%d-%y")
-currenttime=$(date +"%H-%M-%S")
-binfoldername="$currentdate-$currenttime"
-
 
 ## current directory
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
 
 ## OVERALL LOOP CHECKING FOR A ZIP FOLDER, A TTF FILE OR AN OTF FILE each time it loops
 FILES="$DIR/*"
 for f in $FILES
 do
 
-	## echo "Ignoring $f file..."
-  
-  
-  
-	## if its a TTF font file
-	if [[ $f == *".ttf"* ]] || [[ $f == *".TTF"* ]]
-	then
-	  
-	  ## split filename into filename and extension
-	  filename=$(basename "$f")
-	  extension="${filename##*.}"
-	  filename="${filename%.*}"
-	  
-	  # first, strip underscores
-	  CLEAN=${filename//_/}
-	  # next, replace spaces with underscores
-	  CLEAN=${filename// /_}
-	  # now, clean out anything that's not alphanumeric or an underscore
-	  CLEAN=${filename//[^a-zA-Z0-9_]/}
-	  # finally, lowercase with TR
-	  CLEANFILENAME=`echo -n $CLEAN | tr A-Z a-z`
-	  
-	  echo "----------------"
-	  echo "Working on "$filename"."$extension" - TTF font file..."
-	  echo "----------------"
-	  
-	  echo $CLEANFILENAME
-	  echo $extension
-	  
-	  ## create folder with same name as ttf file, but cleaned
-	  mkdir -p "$DIR/$CLEANFILENAME"
-	  
-	  ## make font directory in Lubuntu fonts folder
-	  echo "Creating Lubuntu font folder, need your password:"
-	  sudo mkdir -p "/usr/share/fonts/truetype/$CLEANFILENAME"
-	  
-	  echo "----------------"				
-	  echo "Copying "$filename"."$extension" font to folder ..."
-	  echo "----------------"
-	  
-	  ## move fonts to newly created lubuntu font folder
-	  sudo mv "$DIR/$CLEANFILENAME/"$filename"."$extension"" "/usr/share/fonts/truetype/$CLEANFILENAME"
-	  
-	  
-	fi
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	## if its an OTF font file
-	if [[ $f == *".otf"* ]] || [[ $f == *".OTF"* ]]
-	then
-	
-		## split filename into filename and extension
-	    filename=$(basename "$f")
-	    extension="${filename##*.}"
-	    filename="${filename%.*}"
-	  
-	    # first, strip underscores
-	    CLEAN=${filename//_/}
-	    # next, replace spaces with underscores
-	    CLEAN=${filename// /_}
-	    # now, clean out anything that's not alphanumeric or an underscore
-	    CLEAN=${filename//[^a-zA-Z0-9_]/}
-	    # finally, lowercase with TR
-	    CLEANFILENAME=`echo -n $CLEAN | tr A-Z a-z`
-	  
-	    echo "----------------"
-	    echo "Working on "$filename"."$extension" - OTF font file..."
-	    echo "----------------"
-	  
-	    echo $CLEANFILENAME
-	    echo $extension
-	  
-	    ## create folder with same name as ttf file, but cleaned
-	    mkdir -p "$DIR/$CLEANFILENAME"
-	  
-	    ## make font directory in Lubuntu fonts folder
-	    echo "Creating Lubuntu font folder, need your password:"
-	    sudo mkdir -p "/usr/share/fonts/opentype/$CLEANFILENAME"
-		
-		echo "----------------"			
-	    echo "Copying "$filename"."$extension" font to folder ..."
-		echo "----------------"
-	  
-	    ## move fonts to newly created lubuntu font folder
-	    sudo mv "$DIR/$CLEANFILENAME/"$filename"."$extension"" "/usr/share/fonts/opentype/$CLEANFILENAME"
-	  
-	  
-	fi
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	## if its a ZIP folder of fonts
 	if [[ $f == *".zip"* ]]
 	then
 	  
-		## split filename into filename and extension
+	    ## split filename into filename and extension
 	    filename=$(basename "$f")
 	    extension="${filename##*.}"
 	    filename="${filename%.*}"
 	    
 	    # first, strip underscores
 	    CLEAN=${filename//_/}
-	    # next, replace spaces with underscores
-	    CLEAN=${filename// /_}
-	    # now, clean out anything that's not alphanumeric or an underscore
-	    CLEAN=${filename//[^a-zA-Z0-9_]/}
+	    # next, remove spaces
+	    CLEAN=${filename// /}
+	    # now, clean out anything that's not alphanumeric including underscore
+	    CLEAN=${filename//[^a-zA-Z0-9]/}
 	    # finally, lowercase with TR
 	    CLEANFILENAME=`echo -n $CLEAN | tr A-Z a-z`
 	  
@@ -152,20 +32,20 @@ do
 		echo "----------------"
 		
 		## create folder with same name as zip folder, but cleaned
-		mkdir -p "$DIR/$CLEANFILENAME"
+		mkdir -p ""$DIR"/"$CLEANFILENAME""
 		
 		## move zip to that folder
-		mv "$f" "$DIR/$CLEANFILENAME"
+		mv ""$f"" ""$DIR"/"$CLEANFILENAME""
 		
 		## unzip to that folder
-		unzip "$DIR/$CLEANFILENAME/"$filename"."$extension"" -d "$DIR/$CLEANFILENAME"
+		unzip ""$DIR"/"$CLEANFILENAME"/"$filename"."$extension"" -d ""$DIR"/"$CLEANFILENAME""
 		echo "Unzipped contents of "$filename"."$extension" to "$CLEANFILENAME" folder"
 				
 				
 				## FIND AND INSTALL TTF FILES - IF THEY EXIST
 				
 				## for each file in newly created folder with unzipped contents, recursive through all directories in that folder
-				for ttfonlyfile in $(find $DIR/$CLEANFILENAME -name '*.ttf' -or -name '*.TTF'); 
+				for ttfonlyfile in $(find ""$DIR"/"$CLEANFILENAME"" -name '*.ttf' -or -name '*.TTF'); 
 				do 
 					
 					## echo $ttfonlyfile;
@@ -178,7 +58,9 @@ do
 				
 				## If there are TTF fonts found then create lubuntu font folder and move fonts to that
 				if [ ${#ttfinzip[@]} -eq 0 ]; then
+					echo "----------------"
 					echo "No TTF fonts found in zip folder."
+					echo "----------------"
 				else
 					
 					echo "----------------"
@@ -187,10 +69,10 @@ do
 					
 					## make font directory in Lubuntu fonts folder
 					echo "Creating Lubuntu font folder, need your password:"
-					sudo mkdir -p "/usr/share/fonts/truetype/$CLEANFILENAME"
+					sudo mkdir -p "/usr/share/fonts/truetype/"$CLEANFILENAME""
 					
 					echo "----------------"
-					echo "Copying fonts to folder ..."
+					echo "Copying fonts to folder ... /usr/share/fonts/truetype/"$CLEANFILENAME" ..."
 					echo "----------------"
 					
 					## loop ttf font array items
@@ -200,7 +82,7 @@ do
 					   # do whatever on $ttfitem
 					   
 					   ## move fonts to newly created lubuntu font folder
-					   sudo mv "$ttfitem" "/usr/share/fonts/truetype/$CLEANFILENAME"
+					   sudo mv "$ttfitem" "/usr/share/fonts/truetype/"$CLEANFILENAME""
 					   
 					done
 					## end loop
@@ -224,7 +106,7 @@ do
 				
 				
 				## for each file in newly created folder with unzipped contents, recursive through all directories in that folder
-				for otfonlyfile in $(find $DIR/$CLEANFILENAME -name '*.otf' -or -name '*.OTF'); 
+				for otfonlyfile in $(find ""$DIR"/"$CLEANFILENAME"" -name '*.otf' -or -name '*.OTF'); 
 				do 
 					
 					## echo $otfonlyfile;
@@ -237,7 +119,9 @@ do
 				
 				## If there are TTF fonts found then create lubuntu font folder and move fonts to that
 				if [ ${#otfinzip[@]} -eq 0 ]; then
+					echo "----------------"
 					echo "No OTF fonts found in zip folder."
+					echo "----------------"
 				else
 					
 					echo "----------------"
@@ -246,10 +130,10 @@ do
 					
 					## make font directory in Lubuntu fonts folder
 					echo "Creating Lubuntu font folder, need your password:"
-					sudo mkdir -p "/usr/share/fonts/opentype/$CLEANFILENAME"
+					sudo mkdir -p "/usr/share/fonts/opentype/"$CLEANFILENAME""
 					
 					echo "----------------"
-					echo "Copying fonts to folder ..."
+					echo "Copying fonts to folder ... /usr/share/fonts/opentype/"$CLEANFILENAME" ..."
 					echo "----------------"
 					
 					## loop ttf font array items
@@ -259,7 +143,7 @@ do
 					   # do whatever on $otfitem
 					   
 					   ## move fonts to newly created lubuntu font folder
-					   sudo mv "$otfitem" "/usr/share/fonts/opentype/$CLEANFILENAME"
+					   sudo mv "$otfitem" "/usr/share/fonts/opentype/"$CLEANFILENAME""
 					   
 					done
 					## end loop
@@ -279,15 +163,17 @@ do
 				
 		
 	  
-	fi ## end - if it is zip folder
+		fi ## end - if it is zip folder
+
+
+
+
+
 
 
 
 done
 ## end - OVERALL LOOP CHECKING FOR A ZIP FOLDER, A TTF FILE OR AN OTF FILE each time it loops
-
-
-
 
 
 
@@ -302,6 +188,14 @@ echo "Updating font cache ..."
 echo "----------------"
 sudo fc-cache -f -v
 echo "Font cache update complete."
+
+
+## Move COMPLETED unzipped font folder to separate folder here
+## make --installed-fonts-- folder if it does not exist
+mkdir -p ""$DIR"/installed-fonts"
+## move whole completed folder to it
+mv ""$DIR"/"$CLEANFILENAME"" ""$DIR"/installed-fonts"
+
 
 
 ## Finished
