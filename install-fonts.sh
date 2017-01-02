@@ -5,6 +5,12 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 ## OVERALL LOOP CHECKING FOR A ZIP FOLDER, A TTF FILE OR AN OTF FILE each time it loops
+
+## this allows for-loop to process spaces in filenames - without this whole script will break at spaces.
+SAVEIFS=$IFS
+IFS=$(echo -en "\n\b")
+## END - this allows for-loop to process spaces in filenames - without this whole script will break at spaces.
+
 FILES="$DIR/*"
 for f in $FILES
 do
@@ -14,44 +20,51 @@ do
 	then
 	  
 	    ## split filename into filename and extension
-	    filename=$(basename "$f")
-	    extension="${filename##*.}"
-	    filename="${filename%.*}"
-	    
-	    # first, strip underscores
-	    CLEAN=${filename//_/}
-	    # next, remove spaces
-	    CLEAN=${filename// /}
-	    # now, clean out anything that's not alphanumeric including underscore
-	    CLEAN=${filename//[^a-zA-Z0-9]/}
-	    # finally, lowercase with TR
-	    CLEANFILENAME=`echo -n $CLEAN | tr A-Z a-z`
+	    zipfilename=$(basename "$f")
+	    zipextension="${zipfilename##*.}"
+	    zipfilename="${zipfilename%.*}"
+
 	  
 	    echo "----------------"
-		echo "Working on ZIP folder - "$filename"."$extension" ..."
+		echo "Working on ZIP folder - "$zipfilename"."$zipextension" ..."
 		echo "----------------"
 		
+		FOLDERNAME=${zipfilename//[^a-zA-Z0-9]/}
+		FOLDERNAME=${FOLDERNAME// /}
+		
 		## create folder with same name as zip folder, but cleaned
-		mkdir -p ""$DIR"/"$CLEANFILENAME""
+		mkdir -p ""$DIR"/"$FOLDERNAME""
+		
 		
 		## move zip to that folder
-		mv ""$f"" ""$DIR"/"$CLEANFILENAME""
+		mv ""$DIR"/"$zipfilename"."$zipextension"" ""$DIR"/"$FOLDERNAME""
 		
-		## unzip to that folder
-		unzip ""$DIR"/"$CLEANFILENAME"/"$filename"."$extension"" -d ""$DIR"/"$CLEANFILENAME""
-		echo "Unzipped contents of "$filename"."$extension" to "$CLEANFILENAME" folder"
+		
+		## unzip within that folder
+		unzip ""$DIR"/"$FOLDERNAME"/"$zipfilename"."$zipextension"" -d ""$DIR"/"$FOLDERNAME""
+				
 				
 				
 				## FIND AND INSTALL TTF FILES - IF THEY EXIST
 				
 				## for each file in newly created folder with unzipped contents, recursive through all directories in that folder
-				for ttfonlyfile in $(find ""$DIR"/"$CLEANFILENAME"" -name '*.ttf' -or -name '*.TTF'); 
+				for ttfonlyfile in $(find ""$DIR"/"$FOLDERNAME"" -name '*.ttf' -or -name '*.TTF'); 
 				do 
 					
-					## echo $ttfonlyfile;
+					echo "${ttfonlyfile}"
+					fontfilename=$(basename ""${ttfonlyfile}"")
+					fontextension="${fontfilename##*.}"
+					fontfilename="${fontfilename%.*}"
+					
+					NEWFONTNAME=${fontfilename//[^a-zA-Z0-9]/}
+					NEWFONTNAME=${NEWFONTNAME// /}
+					
+					mv ""$DIR"/"$FOLDERNAME"/"$fontfilename"."$fontextension"" ""$DIR"/"$FOLDERNAME"/"$NEWFONTNAME"."$fontextension""
+					
+					ttffontpath=""$DIR"/"$FOLDERNAME"/"$NEWFONTNAME"."$fontextension""
 					
 					## add ttf fonts to array, if any.
-					ttfinzip+=(''$ttfonlyfile'') ## double (') as it is a variable, else use single (') 
+					ttfinzip+=(''$ttffontpath'') ## double (') as it is a variable, else use single (') 
 				
 				done
 				
@@ -69,10 +82,10 @@ do
 					
 					## make font directory in Lubuntu fonts folder
 					echo "Creating Lubuntu font folder, need your password:"
-					sudo mkdir -p "/usr/share/fonts/truetype/"$CLEANFILENAME""
+					sudo mkdir -p "/usr/share/fonts/truetype/"$FOLDERNAME""
 					
 					echo "----------------"
-					echo "Copying fonts to folder ... /usr/share/fonts/truetype/"$CLEANFILENAME" ..."
+					echo "Copying fonts to folder ... /usr/share/fonts/truetype/"$FOLDERNAME" ..."
 					echo "----------------"
 					
 					## loop ttf font array items
@@ -82,7 +95,7 @@ do
 					   # do whatever on $ttfitem
 					   
 					   ## move fonts to newly created lubuntu font folder
-					   sudo mv "$ttfitem" "/usr/share/fonts/truetype/"$CLEANFILENAME""
+					   sudo mv "$ttfitem" "/usr/share/fonts/truetype/"$FOLDERNAME""
 					   
 					done
 					## end loop
@@ -106,13 +119,26 @@ do
 				
 				
 				## for each file in newly created folder with unzipped contents, recursive through all directories in that folder
-				for otfonlyfile in $(find ""$DIR"/"$CLEANFILENAME"" -name '*.otf' -or -name '*.OTF'); 
+				for otfonlyfile in $(find ""$DIR"/"$FOLDERNAME"" -name '*.otf' -or -name '*.OTF'); 
 				do 
 					
 					## echo $otfonlyfile;
 					
+					fontfilename=$(basename "$otfonlyfile")
+					fontextension="${fontfilename##*.}"
+					fontfilename="${fontfilename%.*}"
+					
+					NEWFONTNAME=${fontfilename//[^a-zA-Z0-9]/}
+					NEWFONTNAME=${NEWFONTNAME// /}
+					
+					mv ""$DIR"/"$FOLDERNAME"/"$fontfilename"."$fontextension"" ""$DIR"/"$FOLDERNAME"/"$NEWFONTNAME"."$fontextension""
+					
+					otffontpath=""$DIR"/"$FOLDERNAME"/"$NEWFONTNAME"."$fontextension""
+					
+					
+					
 					## add otf fonts path to array, if any.
-					otfinzip+=(''$otfonlyfile'') ## double (') as it is a variable, else use single (') 
+					otfinzip+=(''$otffontpath'') ## double (') as it is a variable, else use single (') 
 				
 				done
 				
@@ -130,10 +156,10 @@ do
 					
 					## make font directory in Lubuntu fonts folder
 					echo "Creating Lubuntu font folder, need your password:"
-					sudo mkdir -p "/usr/share/fonts/opentype/"$CLEANFILENAME""
+					sudo mkdir -p "/usr/share/fonts/opentype/"$FOLDERNAME""
 					
 					echo "----------------"
-					echo "Copying fonts to folder ... /usr/share/fonts/opentype/"$CLEANFILENAME" ..."
+					echo "Copying fonts to folder ... /usr/share/fonts/opentype/"$FOLDERNAME" ..."
 					echo "----------------"
 					
 					## loop ttf font array items
@@ -143,7 +169,7 @@ do
 					   # do whatever on $otfitem
 					   
 					   ## move fonts to newly created lubuntu font folder
-					   sudo mv "$otfitem" "/usr/share/fonts/opentype/"$CLEANFILENAME""
+					   sudo mv "$otfitem" "/usr/share/fonts/opentype/"$FOLDERNAME""
 					   
 					done
 					## end loop
@@ -177,6 +203,11 @@ done
 
 
 
+# restore $IFS - had changed it above to allow for-loop to process spaces in filenames - without this whole script will break at spaces.
+IFS=$SAVEIFS
+# end - restore $IFS
+
+
 ## after the loop completes ...
 
 
@@ -194,7 +225,7 @@ echo "Font cache update complete."
 ## make --installed-fonts-- folder if it does not exist
 mkdir -p ""$DIR"/installed-fonts"
 ## move whole completed folder to it
-mv ""$DIR"/"$CLEANFILENAME"" ""$DIR"/installed-fonts"
+mv ""$DIR"/"$FOLDERNAME"" ""$DIR"/installed-fonts"
 
 
 
